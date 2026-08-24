@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia CBMBA - Fluxo com Imagens Reais</title>
+    <!-- Tailwind CSS para estilização -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React e ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel para compilar JSX no navegador -->
+    <script src="https://unpkg.com/@babel/standalone@7.23.9/babel.min.js"></script>
+    
+    <style>
+        body { margin: 0; padding: 0; overflow-x: hidden; font-family: sans-serif; background-color: #F8FAFC; }
+        html { scroll-behavior: smooth; }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+   <script type="text/babel" data-presets="react,env">
+        /**
+         * Componente de Ícone SVG personalizado
+         */
+        const Icon = ({ name, size = 24, className = "" }) => {
+            const icons = {
+                ShieldCheck: <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM12 8v4m0 4h.01" />,
+                MessageCircle: (
+  <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
+),
+                FileText: <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />,
+                Building2: <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18M6 12h12M6 17h12M10 6h4" />,
+                ArrowRight: <path d="M5 12h14m-7-7 7 7-7 7" />,
+                Users: <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />,
+                RotateCcw: <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8m0-5v5h5" />,
+                CheckCircle: <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3" />,
+                ExternalLink: <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6m4-3h6v6m-11 5L22 3" />,
+                Download: <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3" />,
+                ClipboardCheck: (
+                    <React.Fragment>
+                        <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2m4 10 2 2 4-4" />
+                    </React.Fragment>
+                ),
+                AlertTriangle: <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3ZM12 9v4m0 4h.01" />,
+                Image: (
+                    <React.Fragment>
+                        <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                        <circle cx="9" cy="9" r="2" />
+                        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                    </React.Fragment>
+                )
+            };
+
+            return (
+                <svg 
+                    width={size} 
+                    height={size} 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    className={className}
+                >
+                    {icons[name] || <circle cx="12" cy="12" r="10" />}
+                </svg>
+            );
+        };
+
+        /**
+         * Componente de Ilustração que aceita uma URL de imagem
+         */
+        const FinalIllustration = ({ title, src }) => (
+            <div className="mt-10 mb-6 bg-white rounded-[32px] border border-slate-200 shadow-sm overflow-hidden flex flex-col items-center justify-center transition-all">
+                {src ? (
+                    <div className="w-full">
+                        <img 
+                            src={src} 
+                            alt={`Ilustração do Processo: ${title}`} 
+                            className="w-full h-auto object-cover"
+                            onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                            }}
+                        />
+                        <div className="hidden p-10 flex-col items-center text-slate-400">
+                             <Icon name="AlertTriangle" size={32} className="mb-2" />
+                             <span className="text-xs font-bold">Erro ao carregar imagem</span>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="p-12 flex flex-col items-center text-slate-400">
+                        <Icon name="Image" size={48} className="mb-4 opacity-20" />
+                        <h5 className="font-black text-xs uppercase tracking-[0.2em] mb-2 text-center">Ilustração do Processo: {title}</h5>
+                        <p className="text-[10px] opacity-60 px-10 text-center uppercase font-bold">
+                            [Aguardando link da imagem no código]
+                        </p>
+                    </div>
+                )}
+            </div>
+        );
+
+        /**
+ * Componente para Incorporar Vídeo do YouTube de forma responsiva
+ */
+const VideoTutorial = ({ videoId, title }) => (
+    <div className="mt-8 mb-6 bg-white rounded-[32px] border border-slate-200 shadow-lg overflow-hidden">
+        <div className="p-4 border-b border-slate-100 flex items-center gap-2">
+            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+            <span className="text-xs font-black uppercase tracking-widest text-slate-500">Vídeo Tutorial: {title}</span>
+        </div>
+        <div className="relative pb-[56.25%] h-0 overflow-hidden w-full">
+            <iframe 
+                className="absolute top-0 left-0 w-full h-full"
+                src={`https://www.youtube.com/embed/${videoId}`}
+                title={title}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowFullScreen
+            ></iframe>
+        </div>
+    </div>
+);
+        /**
+         * Botões de Ação de Rodapé
+         */
+        const ActionButtons = ({ onFenixClick }) => (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Botão Alterado Abaixo */}
+        <a 
+            href="https://fenix.cbm.ba.gov.br/" 
+            onClick={onFenixClick}
+            className="flex items-center justify-center gap-2 bg-red-600 text-white p-5 rounded-2xl font-black hover:bg-red-700 transition-all shadow-lg text-sm cursor-pointer"
+        >
+            <Icon name="ExternalLink" size={18} /> Acessar ao Fênix
+        </a>
+                
+    </div>
+);
+
+        const App = () => {
+            const [activeTab, setActiveTab] = React.useState('quiz');
+            const [quizStep, setQuizStep] = React.useState(0);
+            const [quizResult, setQuizResult] = React.useState(null);
+            const [areaType, setAreaType] = React.useState(null);
+
+            const resetQuiz = () => { 
+                setQuizStep(0); 
+                setQuizResult(null); 
+                setAreaType(null);
+                setActiveTab('quiz'); 
+                window.scrollTo(0,0); 
+            };
+
+            const handleQuizAnswer = (answer, nextStep, result = null) => {
+                if (result) { setQuizResult(result); setQuizStep(-1); }
+                else { setQuizStep(nextStep); }
+            };
+
+            const Step = ({ number, title, children, isLast = false, color = "red" }) => (
+                <div className="flex gap-4 mb-6 relative">
+                    {!isLast && <div className={`absolute left-6 top-12 bottom-0 w-0.5 bg-${color}-100 hidden sm:block`}></div>}
+                    <div className={`flex-shrink-0 w-12 h-12 bg-${color === 'amber' ? 'amber-600' : color === 'slate' ? 'slate-800' : 'red-600'} text-white rounded-full flex items-center justify-center font-bold text-xl z-10 shadow-lg`}>
+                        {number}
+                    </div>
+                    <div className="flex-grow pt-1">
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">{title}</h3>
+                        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm text-slate-600 leading-relaxed text-sm">
+                            {children}
+                        </div>
+                    </div>
+                </div>
+
+            
+            );
+
+             const Step2 = ({ number, title, isLast = false, color = "red" }) => (
+                <div className="flex gap-4 mb-6 relative">
+                    {!isLast && <div className={`absolute left-6 top-12 bottom-0 w-0.5 bg-${color}-100 hidden sm:block`}></div>}
+                    <div className={`flex-shrink-0 w-8 h-8 bg-${color === 'amber' ? 'amber-600' : color === 'slate' ? 'slate-800' : 'red-300'} text-white rounded-full flex items-center justify-center font-bold text-xl z-10 shadow-lg`}>
+                        {number}
+                    </div>
+                    <div className="flex-grow pt-1">
+                     <h3 className="text-sm  text-slate-800 mb-2">{title}</h3>   
+                     </div>
+                </div>
+
+            
+            );
+
+            
+
+            const QuizScreen = () => (
+                <div className="max-w-3xl mx-auto py-12 px-4 animate-fade-in">
+                    {quizStep === 0 && (
+                       
+                                
+                    
+                    <div className="bg-white rounded-[40px] p-10 border-2 border-slate-100 shadow-2xl text-center">
+                            <div className="w-24 h-24 bg-transparent rounded-3xl flex items-center justify-center mx-auto mb-8">
+                                <img src="logo.png" alt="Logo CBMBA" style={{ height: "100px" }} />
+                            </div>
+                            <h1 className="text-2xl  font-black mb-4 text-slate-900 leading-tight">Central de Ajuda: <br/>Segurança Contra Incêndio e Pânico (15ºBBM)</h1>
+                            <p className="text-slate-600 mb-10 text-lg">Fiscalização, documentos, taxas e regularização -  tudo explicado para você.</p>
+                            <div className="grid md:grid-cols-2 gap-6 mt-8">
+
+  {/* CARD ASSISTENTE */}
+  <div 
+  onClick={() => setQuizStep(1)} 
+  className="cursor-pointer bg-white rounded-3xl p-6 shadow-xl border border-slate-200 hover:shadow-2xl hover:scale-[1.02] transition-all"
+>
+  <div className="flex items-center gap-3 mb-3">
+    <div className="bg-red-100 text-red-600 w-12 h-12 flex items-center justify-center rounded-xl">
+      <Icon name="FileText" size={22} />
+    </div>
+
+    <h2 className="text-xl font-bold text-slate-900">
+      Assistente de Regularização
+    </h2>
+  </div>
+
+  <p className="text-slate-600 text-sm">
+    No Assistente, você encontra explicações simples sobre fiscalização, como se regularizar, quais documentos precisa e tudo certinho para o seu tipo de edificação.
+  </p>
+</div>
+
+
+  {/* CARD CHATBOT */}
+  <a 
+  href="https://duvidassci15bbm.lovable.app/" 
+  target="_blank"
+  className="bg-white rounded-3xl p-6 shadow-xl border border-slate-200 hover:shadow-2xl hover:scale-[1.02] transition-all block"
+>
+  <div className="flex items-center gap-3 mb-3">
+    <div className="bg-blue-100 text-blue-600 w-12 h-12 flex items-center justify-center rounded-xl">
+      <Icon name="MessageCircle" size={22} />
+    </div>
+
+    <h2 className="text-xl font-bold text-slate-900">
+      Chatbot de Dúvidas
+    </h2>
+  </div>
+
+  <p className="text-slate-600 text-sm">
+    No Chatbot Interativo, você pode perguntar o que quiser e receber respostas rápidas sobre taxas, multas, fiscalização e muito mais.
+  </p>
+</a>
+
+</div>
+                        </div>
+                    )}
+                    {quizStep === 1 && (
+                        <div className="bg-white rounded-3xl p-10 shadow-xl border border-slate-100 animate-fade-in">
+                            <h2 className="text-2xl font-black mb-8 text-slate-800">Escolha a opção que corresponde à sua situação:</h2>
+                            <div className="grid gap-5">
+                                <button onClick={() => setQuizStep(2)} className="p-6 border-2 rounded-2xl text-left hover:border-red-500 hover:bg-red-50 transition-all font-bold text-lg">Possuo sede comercial.</button>
+                                <button 
+  onClick={() => handleQuizAnswer('nao', null, 'di')} 
+  className="p-6 border-2 rounded-2xl text-left hover:border-amber-500 hover:bg-amber-50 transition-all"
+>
+  <div className="font-bold text-lg">
+    Não possuo sede comercial.
+  </div>
+
+  <div className="text-sm text-slate-500 mt-1">
+    Ex: Atuo como encanador, pintor ou profissional autônomo, realizo atendimentos fora do meu endereço, trabalho em home office ou não possuo estabelecimento fixo.
+  </div>
+</button>
+                                 <button 
+  onClick={() => handleQuizAnswer('sim', null, 'ptiot')} 
+  className="p-6 border-2 rounded-2xl text-left hover:border-amber-500 hover:bg-amber-50 transition-all"
+>
+  <div className="font-bold text-lg">
+  Evento com estrutura temporária
+
+  </div>
+
+  <div className="text-sm text-slate-500 mt-1">
+    Ex: Festas com controle de público, palcos, circos, parques de diversão, arquibancadas ou similares.
+  </div>
+</button>
+<button 
+  onClick={() => setActiveTab('fiscalizacao')} 
+  className="p-6 border-2 rounded-2xl text-left hover:border-blue-500 hover:bg-blue-50 transition-all"
+>
+  <div className="font-bold text-lg">
+    Fui fiscalizado
+  </div>
+
+  <div className="text-sm text-slate-500 mt-1">
+    Entenda o passo a passo da fiscalização e o que fazer após a visita.
+  </div>
+</button>
+                            </div>
+                        </div>
+                    )}
+                    {quizStep === 2 && (
+                        <div className="bg-white rounded-3xl p-10 shadow-xl border border-slate-100 animate-fade-in">
+                            <h2 className="text-2xl font-black mb-8 text-slate-800">Qual o enquadramento de área e altura?</h2>
+                            <div className="grid gap-5">
+                                <button onClick={() => { setAreaType('small'); setQuizStep(3); }} className="p-6 border-2 rounded-2xl text-left hover:border-red-500 hover:bg-red-50 transition-all font-bold text-lg">Até 200 m² e um único pavimento</button>
+                                <button onClick={() => { setAreaType('medium'); setQuizStep(3); }} className="p-6 border-2 rounded-2xl text-left hover:border-red-500 hover:bg-red-50 transition-all font-bold text-lg">Acima de 200 m² até 750 m² (máx 3 pav.)</button>
+                                <button onClick={() => handleQuizAnswer('pt', null, 'pt')} className="p-6 border-2 rounded-2xl text-left hover:border-slate-800 hover:bg-slate-50 transition-all font-bold text-lg">Acima de 750 m² ou mais de 3 pavimentos</button>
+                            </div>
+                        </div>
+                    )}
+                    {quizStep === 3 && (
+  <div className="bg-white rounded-3xl p-10 shadow-xl border border-slate-100 animate-fade-in">
+    
+    <h2 className="text-2xl font-bold mb-6 text-slate-800 flex items-center gap-2">
+      <Icon name="AlertTriangle" className="text-amber-500" />
+      Verifique os Casos de Exceção:
+    </h2>
+
+    <p className="text-slate-600 mb-6">
+      Verifique se a edificação se enquadra em alguma das situações abaixo:
+    </p>
+
+    <div className="space-y-4 mb-8">
+
+      <div className="bg-slate-50 p-4 rounded-xl">
+        <p className="font-semibold text-slate-800">
+          Local com reunião de público acima de 100 pessoas
+        </p>
+        <p className="text-sm text-slate-500">
+          Ex: igrejas, auditórios, salões de eventos
+        </p>
+      </div>
+
+      <div className="bg-slate-50 p-4 rounded-xl">
+        <p className="font-semibold text-slate-800">
+          Posto de combustíveis
+        </p>
+      </div>
+
+      <div className="bg-slate-50 p-4 rounded-xl">
+        <p className="font-semibold text-slate-800">
+          Manipulação ou armazenamento de produtos perigosos
+        </p>
+        <p className="text-sm text-slate-500">
+          Ex: explosivos, fogos de artifício, produtos tóxicos, substâncias corrosivas, inflamáveis ou radioativas
+        </p>
+      </div>
+
+    </div>
+
+    <div className="grid gap-5">
+      <button 
+        onClick={() => handleQuizAnswer('sim', null, 'pt')} 
+        className="p-6 border-2 rounded-2xl text-left hover:border-slate-800 hover:bg-slate-50 transition-all"
+      >
+        <div className="font-bold text-lg">
+          Sim, se enquadra em pelo menos um dos casos
+        </div>
+      </button>
+
+      <button 
+        onClick={() => setQuizStep(4)} 
+        className="p-6 border-2 rounded-2xl text-left hover:border-red-500 hover:bg-red-50 transition-all"
+      >
+        <div className="font-bold text-lg">
+          Não, não se enquadra em nenhum dos casos
+        </div>
+      </button>
+    </div>
+
+  </div>
+)}
+                    {quizStep === 4 && (
+                        <div className="bg-white rounded-3xl p-10 shadow-xl border border-slate-100 animate-fade-in">
+                            <h2 className="text-2xl font-black mb-8 text-slate-800 flex items-center gap-2"><Icon name="AlertTriangle" className="text-amber-500" /> Verificação de Risco</h2>
+                            <p className="text-slate-700 mb-8 font-bold text-lg">
+                                O local possui riscos como Escola Infantil, Depósito de GLP  de até 12.480 Kg ou outros que exijam vistoria prévia?
+                            </p>
+                            <div className="grid gap-5">
+                                <button onClick={() => handleQuizAnswer('sim', null, 'pts3')} className="p-6 border-2 rounded-2xl text-left hover:border-red-500 hover:bg-red-50 font-bold text-lg">Sim, possui estes riscos especiais.</button>
+                                <button onClick={() => {
+                                    if (areaType === 'small') handleQuizAnswer('nao', null, 'pts1');
+                                    else handleQuizAnswer('nao', null, 'pts2');
+                                }} className="p-6 border-2 rounded-2xl text-left hover:border-red-500 hover:bg-red-50 font-bold text-lg">Não possui estes riscos.</button>
+                            </div>
+                        </div>
+                    )}
+                    {quizStep === -1 && (
+                        <div className="bg-white rounded-[40px] p-12 shadow-2xl border-4 border-red-50 text-center animate-fade-in">
+                            <h2 className="text-xl font-bold text-slate-400 mb-2 uppercase tracking-widest">Resultado</h2>
+                            <div className="text-4xl font-black mb-8 text-slate-900 leading-tight">
+                                Seu processo é o <br/>
+                                <span className="text-red-600">
+                                    {quizResult === 'di' && 'D.I. (Inexigível)'}
+                                    {quizResult === 'pts1' && 'PTS (Caso 1)'}
+                                    {quizResult === 'pts2' && 'PTS (Caso 2)'}
+                                    {quizResult === 'pts3' && 'PTS (Caso 3)'}
+                                    {quizResult === 'pt' && 'P.T. (Projeto Técnico)'}
+                                    {quizResult === 'ptiot' && 'PTIOT (Projeto Técnico de Evento Temporário)'}
+                                </span>
+                            </div>
+                            <button onClick={() => { setActiveTab(quizResult); window.scrollTo(0,0); }} className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-3 mb-6">
+                                Ver Tutorial <Icon name="ArrowRight" />
+                            </button>
+                            <button onClick={resetQuiz} className="text-slate-400 font-bold hover:text-red-600 flex items-center gap-2 mx-auto">
+                                <Icon name="RotateCcw" size={16} /> Refazer
+                            </button>
+                        </div>
+                    )}
+                </div>
+            );
+
+                const handleFenixClick = (e) => {
+    e.preventDefault(); // Impede a abertura imediata do link
+    const confirmacao = window.confirm(
+        "Você já baixou os Anexo necessários  e reuniu toda a documentação necessária para dar entrada no Fênix?"
+    );
+    
+    if (confirmacao) {
+        window.open("https://fenix.cbm.ba.gov.br/", "_blank");
+    }
+};
+
+            return (
+                <div className="min-h-screen">
+                    <nav className="bg-white border-b h-20 flex items-center justify-between px-6 sticky top-0 z-50 shadow-sm">
+                        <div className="flex items-center gap-3 cursor-pointer">
+    <div className="bg-red-600 p-2 rounded-xl shadow-md">
+        <Icon name="ShieldCheck" className="text-white" size={20} />
+    </div>
+
+    <span className="font-black text-xl tracking-tight">CBMBA - 15º BBM</span>
+
+    <div className="text-sm text-slate-600 leading-tight">
+        <div>Email: bbm15.sat@cbm.ba.gov.br</div>
+        <div>Fone: (75) 9 9912-8891</div>
+    </div>
+</div>
+                        <div className="hidden md:flex gap-4 text-[9px] font-normal  uppercase tracking-widest text-slate-400">
+                            <button onClick={resetQuiz} className={activeTab==='quiz'?'text-red-600':''}>Assistente</button>
+                            <button onClick={() => setActiveTab('di')} className={activeTab==='di'?'text-amber-600':''}>DI</button>
+                            <button onClick={() => setActiveTab('pts1')} className={activeTab==='pts1'?'text-red-600':''}>PTS 1</button>
+                            <button onClick={() => setActiveTab('pts2')} className={activeTab==='pts2'?'text-red-600':''}>PTS 2</button>
+                            <button onClick={() => setActiveTab('pts3')} className={activeTab==='pts3'?'text-red-600':''}>PTS 3</button>
+                            <button onClick={() => setActiveTab('pt')} className={activeTab==='pt'?'text-slate-900':''}>PT</button>
+                            <button onClick={() => setActiveTab('ptiot')} className={activeTab==='ptiot'?'text-slate-900':''}>PTIOT</button>
+                        </div>
+                    </nav>
+
+                    <main className="pb-20">
+                        {activeTab === 'quiz' && <QuizScreen />}
+                        
+                        {activeTab === 'di' && (
+                            <div className="max-w-4xl mx-auto p-6 animate-fade-in">
+                                <h2 className="text-4xl font-black mb-10 text-amber-600">D.I. (Declaração de Inexigibilidade)</h2>
+                                <Step number="1" title="Login no Fênix">Acesse com seu CPF e selecione "Inexigibilidade".</Step>
+                                <Step number="2" title="Declaração">Confirme que não possui sede comercial física para a atividade.</Step>
+                                <Step number="3" title="Emissão" isLast>O documento é emitido imediatamente e é gratuito.</Step>
+                                
+                                {/* COLOQUE O LINK DA IMAGEM ABAIXO (entre as aspas do src) */}
+                                <FinalIllustration title="Fluxo DI" src="DI.png" />
+                                <Step number="4" title="O Primeiro Cadastro no Sistema Fênix" isLast>{
+    <span>
+        No link a seguir será apresentado um tutorial de como você se cadastrar no Fênix no Primeiro Acesso. -->
+        <a href="http://www.cbm.ba.gov.br/sites/default/files/2024-04/1_-_tutorial_primeiro_acesso_0.pdf" target="_blank" className="text-blue-600 underline hover:text-blue-800">
+            Tutorial de Como se Cadastrar no Fênix.
+        </a>
+           </span>
+}</Step>
+
+                         <Step number="5" title="TutoriaL do passo a passo para DI no Sistema Fênix" isLast>{
+    <span>
+        No link a seguir será apresentado  um tutorial de como você vai conseguir protocolar seus dados para emitir a Declaração de Inexigibilidade no Fênix. -->
+        <a href="http://www.cbm.ba.gov.br/sites/default/files/2025-04/9_-_emitir_declaracao_de_inexigibilidade.pdf" target="_blank" className="text-blue-600 underline hover:text-blue-800">
+            Tutorial do Protocolo de DI no Fênix.
+        </a>
+           </span>
+}</Step>
+                                
+                                <ActionButtons onFenixClick={handleFenixClick} />
+                            </div>
+                        )}
+
+                        {activeTab === 'pts1' && (
+                            <div className="max-w-4xl mx-auto p-6 animate-fade-in">
+                                <h2 className="text-4xl font-black mb-2 text-slate-900">PTS - Caso 1</h2>
+                                <p className="mb-10 font-bold text-red-600 uppercase text-xs tracking-widest">Até 200m² | Apenas um Pavimento | Saída direta para Rua | Sem Responsável Técnico.</p>
+                                <Step number="1" title="Instalar as Medidas de Segurança Contra Incêndio e Pânico">Veja a Ilustração A seguir:
+                                    <FinalIllustration title="Extintor" src="extintor.png" />
+                                    <FinalIllustration title="iluminação" src="iluminação.png" />
+                                    <FinalIllustration title="sinalização" src="sinalização.png" />
+                                    
+                                    </Step>
+                                <Step number="2" title="Licenciamento">Selecione o Licenciamento Simplificado (CLCB) no Fênix.</Step>
+                                <Step number="3" title="Preenchimento">Informa os dados da área e finalize a autodeclaração.</Step>
+                                <Step number="4" title="Liberação" >A emissão ocorre após o pagamento da DAE, sem necessidade de vistoria.</Step>
+                                 <Step number="5" title="Documentação Necessária para Regularizar"> <Step2 title={
+    <span>
+        Preenchimento e apresentação da Declaração do Proprietário ou Responsável pelo Uso (
+        <a href="AnexoB.docx" target="_blank" className="text-red-600 underline hover:text-red-800">
+            ANEXO B da IT 42
+        </a>
+        ) devidamente assinada como assinatura digital ou manuscrita válida.
+    </span>
+}></Step2>
+                                    <Step2  title = " Documento comprobatório de área. "> </Step2>
+                                    <p>ATENÇÃO: Deve ser apresentado algum documento que comprove a área informada no sistema fênix, como: IPTU, planta baixa assinada por responsável técnico, alvará. É importante salientar que para os casos de IPTU, Escritura, etc. deve ser apresentada a parte do documento que informa qual a área do local.</p>
+                                    
+                                    </Step>
+                                <Step number="6" title="Passo a Passo">A seguir é apresentado um Resumo do procedimento para Emissão do CLCB.</Step>
+                                
+                                
+                                {/* COLOQUE O LINK DA IMAGEM ABAIXO (entre as aspas do src) */}
+                                <FinalIllustration title="PTS Caso 1" src="caso1.png" />
+
+                 <Step number="7" title="O Primeiro Cadastro no Sistema Fênix" isLast>{
+    <span>
+        No link a seguir será apresentado um tutorial de como você se cadastrar no Fênix no Primeiro Acesso. -->
+        <a href="http://www.cbm.ba.gov.br/sites/default/files/2024-04/1_-_tutorial_primeiro_acesso_0.pdf" target="_blank" className="text-blue-600 underline hover:text-blue-800">
+            Tutorial de Como se Cadastrar no Fênix.
+        </a>
+           </span>
+}</Step>
+
+                              {/* INSERINDO O VÍDEO AQUI */}
+                <VideoTutorial videoId="iI5fXSoSQGo" title="Passo a Passo do Cadastro no Fênix" />  
+                                
+                      <Step number="8" title="TutoriaL do passo a passo para emissão do CLCB no Sistema Fênix" isLast>{
+    <span>
+        No link a seguir será apresentado  um tutorial de como você vai conseguir protocolar seus dados para emitir o CLCB no Fênix. -->
+        <a href="http://www.cbm.ba.gov.br/sites/default/files/2024-04/4_-_pts_analise_-_reanalise_0.pdf" target="_blank" className="text-blue-600 underline hover:text-blue-800">
+            Tutorial do Protocolo de CLCB no Fênix.
+        </a>
+           </span>
+}</Step>           
+                                
+                               <ActionButtons onFenixClick={handleFenixClick} />
+                            </div>
+                        )}
+
+                        {activeTab === 'pts2' && (
+                            <div className="max-w-4xl mx-auto p-6 animate-fade-in">
+                                <h2 className="text-4xl font-black mb-2 text-slate-900">PTS - Caso 2</h2>
+                                <p className="mb-10 font-bold text-red-600 uppercase text-xs tracking-widest">Maior que 200m² e menor que 750m² | Com Responsável Técnico (ART/RRT/ TRT)</p>
+                                <Step number="1" title="Contratação">Contrate um profissional (Engenheiro/Arquiteto/Técnico) para emitir a ART/RRT/TRT.</Step>
+                                <Step number="2" title="Protocolo">Anexe a documentação técnica e a declaração de conformidade no portal.</Step>
+                                <Step number="3" title="Taxa e CLCB" >Pague a taxa e aguarde a análise documental para emissão do CLCB.</Step>
+                                <Step number="4" title="Documentação Necessária para Regularizar">
+                                    <Step2 title={
+    <span>
+        Preenchimento e apresentação do Formulário de Avaliação de Risco do Responsável Técnico  (
+        <a href="AnexoC.docx" target="_blank" className="text-red-600 underline hover:text-red-800">
+            ANEXO C da IT 42
+        </a>
+        ) devidamente assinada como assinatura digital ou manuscrita válida.
+    </span>
+}></Step2>
+
+  <Step2 title ="Apresentação da ART/RRT ou TRT referente à instalação e/ou manutenção dos sistemas de segurança contra incêndio e dos riscos específicos (caso existam) na edificação, tais como: controle de material de acabamento e revestimento, gases combustíveis, vasos sob pressão, etc.;" isLast></Step2>
+  <Step2 title ="Planta baixa cotada com indicação dos equipamentos de segurança contra incêndio e dos riscos especiais, assinada por um responsável técnico;" isLast></Step2>
+  <Step2 title ="Anexo J da IT 01 (EXCETO PARA EDIFICAÇÕES COM ÁREA INFERIOR A 200m²) →Documento que comprova que na edificação possui funcionários com conhecimentos básicos para atuar na prevenção e no combate ao princípio de incêndio, abandono de área e primeiros- socorros devidamente treinados por empresas credenciadas junto ao CBMBA." isLast></Step2>
+                                    </Step>
+                                    <Step number= "5" title ="Resumo do Passo a Passo">A seguir é apresentado um Resumo do procedimento para Emissão do CLCB.</Step>
+                                
+                                {/* COLOQUE O LINK DA IMAGEM ABAIXO (entre as aspas do src) */}
+                                <FinalIllustration title="PTS Caso 2" src="caso2.png" />
+
+
+                 <Step number="6" title="O Primeiro Cadastro no Sistema Fênix" isLast>{
+    <span>
+        No link a seguir será apresentado um tutorial de como você se cadastrar no Fênix no Primeiro Acesso. -->
+        <a href="http://www.cbm.ba.gov.br/sites/default/files/2024-04/1_-_tutorial_primeiro_acesso_0.pdf" target="_blank" className="text-blue-600 underline hover:text-blue-800">
+            Tutorial de Como se Cadastrar no Fênix.
+        </a>
+           </span>
+}</Step>
+                                 {/* INSERINDO O VÍDEO AQUI */}
+                <VideoTutorial videoId="iI5fXSoSQGo" title="Passo a Passo do Cadastro no Fênix" />
+
+                                
+                                <Step number="7" title="TutoriaL do passo a passo para emissão do CLCB no Sistema Fênix" isLast>{
+    <span>
+        No link a seguir será apresentado  um tutorial de como você vai conseguir protocolar seus dados para emitir o CLCB no Fênix. -->
+        <a href="http://www.cbm.ba.gov.br/sites/default/files/2024-04/4_-_pts_analise_-_reanalise_0.pdf" target="_blank" className="text-blue-600 underline hover:text-blue-800">
+            Tutorial do Protocolo de CLCB no Fênix.
+        </a>
+           </span>
+}</Step>           
+                               <ActionButtons onFenixClick={handleFenixClick} />
+                            </div>
+                        )}
+
+                        {activeTab === 'pts3' && (
+                            <div className="max-w-4xl mx-auto p-6 animate-fade-in">
+                                <h2 className="text-4xl font-black mb-2 text-slate-900">PTS - Caso 3 (AVCB)</h2>
+                                <p className="mb-10 font-bold text-red-600 uppercase text-xs tracking-widest">Simplificado com Risco | Exige Vistoria</p>
+                                <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 text-xs text-red-800 font-bold italic">
+                                    Nota: Este processo aplica-se a edificações com riscos específicos (ex: Escolas Infantis, Depósitos de GLP) que exigem vistoria prévia.
+                                </div>
+                                <Step number="1" title="Contratação">Contrate um profissional (Engenheiro/Arquiteto/Técnico) para emitir a ART/RRT/TRT.</Step>
+                                <Step number="2" title="Protocolo">Anexe a documentação técnica conforme o checklist apresentado.</Step>
+                                <Step number="3" title="Solicitação de Vistoria">Ao finalizar o protocolo no Fênix, Pague A Taxa de Vistoria Gerada pelo Sistema e aguarde a visita técnica  do Bombeiro em seu Estabelecimento.</Step>
+                                <Step number="4" title="Emissão de AVCB" isLast>Após aprovação da vistoria presencial, o AVCB é liberado.</Step>
+                                <Step number="5" title= "Documentação Necessária para Regularizar (Checklist)"> 
+                                    <Step2 title={
+    <span>
+        Preenchimento e apresentação do Formulário de Avaliação de Risco do Responsável Técnico  (
+        <a href="https://drive.google.com/uc?export=download&id=1BvoAP3yt3m3wM0HHDhEZIs7pHP1lc5ny" target="_blank" className="text-red-600 underline hover:text-red-800">
+            ANEXO D da IT 42
+        </a>
+        ) devidamente assinada como assinatura digital ou manuscrita válida.
+    </span>
+}></Step2>
+                                    <Step2 title="Apresentação da ART/RRT ou TRT referente à instalação e/ou manutenção dos sistemas de segurança contra incêndio e dos riscos específicos (caso existam) na edificação, tais como: controle de material de acabamento e revestimento, gases combustíveis, vasos sob pressão, etc.;" isLast> </Step2>
+                                    <Step2 title="Planta baixa cotada com indicação dos equipamentos de segurança contra incêndio e dos riscos especiais, assinada por um responsável técnico." isLast> </Step2>
+                                    <Step2 title="Anexo J da IT 01 (EXCETO PARA EDIFICAÇÕES COM ÁREA INFERIOR A 200m²) →Documento que comprova que na edificação possui funcionários com conhecimentos básicos para atuar na prevenção e no combate ao princípio de incêndio, abandono de área e primeiros- socorros devidamente treinados por empresas credenciadas junto ao CBMBA." isLast> </Step2>
+                                    
+
+                                </Step>
+                                {/* COLOQUE O LINK DA IMAGEM ABAIXO (entre as aspas do src) */}
+                                <FinalIllustration title="PTS Caso 3" src="caso3.png" />
+
+ <Step number="6" title="O Primeiro Cadastro no Sistema Fênix" isLast>{
+    <span>
+        No link a seguir será apresentado um tutorial de como você se cadastrar no Fênix no Primeiro Acesso. -->
+        <a href="http://www.cbm.ba.gov.br/sites/default/files/2024-04/1_-_tutorial_primeiro_acesso_0.pdf" target="_blank" className="text-blue-600 underline hover:text-blue-800">
+            Tutorial de Como se Cadastrar no Fênix.
+        </a>
+           </span>
+
+                                       
+     
+}</Step>
+                      
+                                  {/* INSERINDO O VÍDEO AQUI */}
+                        <VideoTutorial videoId="iI5fXSoSQGo" title="Passo a Passo do Cadastro no Fênix" />
+
+                                
+                                <Step number="7" title="TutoriaL do passo a passo para emissão do PTS/AVCB no Sistema Fênix" isLast>{
+    <span>
+        No link a seguir será apresentado  um tutorial de como você vai conseguir protocolar seus dados para emitir o CLCB no Fênix. -->
+        <a href="http://www.cbm.ba.gov.br/sites/default/files/2024-04/4_-_pts_analise_-_reanalise_0.pdf" target="_blank" className="text-blue-600 underline hover:text-blue-800">
+            Tutorial do Protocolo de PTS/AVCB no Fênix.
+        </a>
+           </span>
+}</Step>                   
+                              <ActionButtons onFenixClick={handleFenixClick} />
+                            </div>
+                        )}
+
+                        {activeTab === 'pt' && (
+                            <div className="max-w-4xl mx-auto p-6 animate-fade-in">
+                                <h2 className="text-4xl font-black mb-10 text-slate-800">Projeto Técnico (PT)</h2>
+                                <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-8 text-xs text-amber-800 font-bold">
+                                     Áreas acima de 750m² | mais de 3 pavimentos | Lotação acima de 100 pessoas | As Execções do PTS | Responsável Técnico.
+                                </div>
+                                <Step number="1" title="Contratação">Contrate um profissional (Engenheiro/Arquiteto/Técnico) para emitir a ART/RRT/TRT </Step>
+                                <Step number="2" title="Aprovação de Plantas">Submeta o projeto completo para análise prévia do CBMBA.</Step>
+                                <Step number="3" title="Implementação">Instale todos os sistemas de hidrantes, alarmes e sinalização.</Step>
+                                <Step number="4" title="Vistoria e AVCB" >Solicite a vistoria física final para obter o seu certificado.</Step>
+                                <Step number="5" title="Documentação Necessária Para Análise de Projeto (Checklist)">
+                                <Step2 title="ART/RRT do responsável técnico pela elaboração do projeto"> </Step2>
+                                <Step2 title="Planta de implantação (quando houver mais de uma edificação e áreas de risco, dentro do mesmo lote, ou conjunto de edificações)"> </Step2>
+                                <Step2 title="Memorial descritivo do projeto de segurança contra incêndio e SPDA (se necessário) rubricado(s) pelo responsável técnico em todas as páginas" isLast> </Step2>
+                                <Step2 title="Gerenciamento de risco de SPDA" isLast> </Step2>
+                                <Step2 title="Anexo A da IT 01/2026 CBMBA" isLast> </Step2>
+                                <Step2 title="Anexo B da IT 01/2026 CBMBA" isLast> </Step2>
+                                
+                                </Step>
+
+                                <Step number="6" title="Documentação Necessária Para Solicitação de Vistoria (Checklist)" isLast>
+                                <Step2 title="ART/RRT de execução da instalação/manutenção dos sistemas de segurança contra incêndio e pânico e de outros riscos específicos necessários (verificar item 6.2.1 da IT 01)"> </Step2>
+                                <Step2 title="Anexo J da IT 01 → Documento que comprova que na edificação possui funcionários com conhecimentos básicos para atuar na prevenção e no combate ao princípio de incêndio, abandono de área e primeiros- socorros devidamente treinados por empresas credenciadas junto ao CBMBA." isLast> </Step2>
+                                <Step2 title="ART/RRT do SPDA (caso necessário)" isLast> </Step2>
+                                <Step2 title="ACP ou AVCB anterior" isLast> </Step2>
+                                <Step2 title="Anexo R da IT 01/2026 CBMBA com a respectiva ART/RRT " isLast> </Step2>
+                                
+                                </Step>
+                                {/* COLOQUE O LINK DA IMAGEM ABAIXO (entre as aspas do src) */}
+                                <FinalIllustration title="Projeto Técnico Completo" src="PT.png" />
+
+
+                     <Step number="6" title="O Primeiro Cadastro no Sistema Fênix" isLast>{
+    <span>
+        No link a seguir será apresentado um tutorial de como você se cadastrar no Fênix no Primeiro Acesso. -->
+        <a href="http://www.cbm.ba.gov.br/sites/default/files/2024-04/1_-_tutorial_primeiro_acesso_0.pdf" target="_blank" className="text-blue-600 underline hover:text-blue-800">
+            Tutorial de Como se Cadastrar no Fênix.
+        </a>
+           </span>
+}</Step>
+                                 {/* INSERINDO O VÍDEO AQUI */}
+                <VideoTutorial videoId="iI5fXSoSQGo" title="Passo a Passo do Cadastro no Fênix" />
+                                
+             <Step number="7" title="TutoriaL do passo a passo para emissão do ACP no Sistema Fênix" isLast>{
+    <span>
+        No link a seguir será apresentado  um tutorial de como você vai conseguir protocolar seus dados para emitir o ACP no Fênix. -->
+        <a href="http://www.cbm.ba.gov.br/sites/default/files/2024-04/3_-_analise_-_reanalise_de_pt_ptiot_ptotep_0.pdf" target="_blank" className="text-blue-600 underline hover:text-blue-800">
+            Tutorial do Protocolo de Análise de Projeto no Fênix.
+        </a>
+           </span>
+}</Step>           
+                                <ActionButtons onFenixClick={handleFenixClick} />
+                            </div>
+                        )}
+
+ {activeTab === 'ptiot' && (
+                            <div className="max-w-4xl mx-auto p-6 animate-fade-in">
+                                <h2 className="text-4xl font-black mb-2 text-slate-900">PTIOT - PROJETO TÉCNICO DE EVENTO TEMPORÁRIO COM ESTRUTURA PROVISÓRIA (AVCB)</h2>
+                                <p className="mb-10 font-bold text-red-600 uppercase text-xs tracking-widest">eventos e estruturas provisórias que ficarão montados por, no máximo, 6 meses</p>
+                                <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 text-xs text-red-800 font-bold italic">
+                                    Nota: Este processo aplica-se a edificações de eventos com estrutura provisória (ex: Parque de diversões, circos, palcos, arquibancadas de vaquejada, etc) que exigem apresentação de projeto técnico com prazo de entrada de no mínino 15 dias antes do evento.
+                                </div>
+                                <Step number="1" title="Contratação e Desenho do Projeto">Contrate um profissional (Engenheiro/Arquiteto/Técnico) para emitir a ART/RRT/TRT.  Esse profissional vai desenhar a planta do evento, mostrando exatamente onde ficarão o palco, as tendas, as arquibancadas, os extintores, as luzes de emergência e, muito importante, as saídas de emergência largas o suficiente para a evacuação do público em segurança. </Step>
+                                <Step number="2" title="Protocolo e Análise de Projeto com ou sem pirotecnia">Anexe a documentação técnica conforme o checklist apresentado no sistema Fênix que vai gerar uma Taxa de Análise. Caso o evento apresente-se com efeitos pirotécnicos, o seu engenheiro também deverá apresentar a documentação necessária para isso neste momento de análise. O Corpo de Bombeiros vai analisar o projeto e se estiver seguro e correto, eles emitem o ACP (Atestado de Conformidade de Projeto)</Step>
+                                <Step number="3" title="Solicitação de Vistoria">Com o projeto aprovado, o seu engenheiro deve solicitar a vistoria do Corpo de Bombeiros com no mínimo 72 horas (3 dias) de antecedência do início do Evento. Ele enviará pelo sistema toda a documentação exigida no cheklist abaixo. Pague A Taxa de Vistoria Gerada pelo Sistema e aguarde a visita técnica  do Bombeiro no local do evento.</Step>
+                                <Step number="4" title="Montagem Segura da Estrutura">Com a planta aprovada, você começa a montar o evento. Aqui entra um detalhe rigoroso: cada empresa que você contratar para montar a estrutura deve fornecer um documento (ART/RRT) garantindo que o serviço é seguro.</Step>
+                                <Step number="5" title="Emissão de AVCB" isLast>Após aprovação da vistoria presencial, o AVCB é liberado.</Step>
+                                <Step number="6" title= "Documentação Necessária para dar entrada no Projeto Técnico de eventos SEM pirotecnia (Checklist):"> 
+                                    
+                                    <Step2 title="Apresentação da ART/RRT ou TRT referente à elaboração do projeto de incêndio"> </Step2>
+                                    <Step2 title="Planta baixa cotada com indicação dos equipamentos de segurança contra incêndio da instalação e ocupação temporária, assinada por um responsável técnico." isLast> </Step2>
+                                    <Step2 title="Memorial Descritivo da instalação." isLast> </Step2>
+                                    
+                               </Step>
+
+                           <Step number="7" title= "Documentação Necessária para dar entrada no Projeto Técnico de eventos COM pirotecnia (Checklist):"> 
+                               <Step2 title="Apresentação de Toda a documentação do passo anterior (ART/RRT/TRT; Desenho Técnico; Memorial Descritivo)"> </Step2>    
+                               <Step2 title={
+    <span>
+        Preenchimento e apresentação do Termo de Responsabilidade da IT 30 do CBMBA  (
+        <a href="AnexoA_30.pdf" target="_blank" className="text-red-600 underline hover:text-red-800">
+            ANEXO A da IT 30
+        </a>
+        ) devidamente assinada como assinatura digital ou manuscrita válida.
+    </span>
+}></Step2>
+                                    <Step2 title="Croqui da área: Desenho contendo o isolamento do perímetro e mostrando as distâncias exatas de segurança em relação à rede elétrica, estacionamento, edificações e à área reservada ao público." isLast> </Step2>
+                                    <Step2 title="Comprovante de Capacitação: Cópia do documento que comprove a capacidade técnica do profissional responsável pela queima (o blaster)." isLast> </Step2>
+                                                 
+
+                                </Step>
+
+                         <Step number="8" title= "Documentação Necessária para dar entrada na vistoria da ocupação temporária (Checklist)"> 
+                                    <Step2 title={
+    <span>
+        Preenchimento e apresentação do Termo de Responsabilidade aplicável ao evento programado  (
+        <a href="AnexoA_46.pdf" target="_blank" className="text-red-600 underline hover:text-red-800">
+            ANEXO A da IT 46
+        </a>
+        ) devidamente assinada como assinatura digital ou manuscrita válida.
+    </span>
+}></Step2>
+                                    <Step2 title="ART, RRT ou TRT das estruturas provisórias: Documento atestando a segurança de palcos, arquibancadas, tendas, camarotes, estruturas suspensas e instalações de brinquedos." isLast> </Step2>
+                                    <Step2 title="ART, RRT ou TRT das instalações elétricas: Atestando a segurança da iluminação, sonorização, grupo motogerador e sistema de aterramento." isLast> </Step2>
+                                    <Step2 title="Anexo J da IT 01 →Documento que comprova que no evento possui brigadistas  devidamente credenciados junto ao CBMBA empregados como foi dimensionado em projeto técnico." isLast> </Step2>
+                                    <Step2 title="ART, RRT ou TRT do controle de material de acabamento e revestimento, muito utilizado para comprovar o tratamento contra fogo em lonas e tendas." isLast> </Step2>
+                                    <Step2 title="ART, RRT ou TRT das instalações das medidas de segurança contra incêndio e pânico: Atestando a segurança da iluminação, saída de emergência, extintores e sinalização de emergência." isLast> </Step2>
+                                    <Step2 title="Anexo R da IT 01 com sua respectiva ART/RRT/TRT: Atestado de conformidade da instalação elétrica." isLast> </Step2>
+
+                                </Step>
+                                {/* COLOQUE O LINK DA IMAGEM ABAIXO (entre as aspas do src) */}
+                                <FinalIllustration title="Eventos Temporários" src="ptiot.png" />
+
+ <Step number="9" title="O Primeiro Cadastro no Sistema Fênix" isLast>{
+    <span>
+        No link a seguir será apresentado um tutorial de como você se cadastrar no Fênix no Primeiro Acesso. -->
+        <a href="http://www.cbm.ba.gov.br/sites/default/files/2024-04/1_-_tutorial_primeiro_acesso_0.pdf" target="_blank" className="text-blue-600 underline hover:text-blue-800">
+            Tutorial de Como se Cadastrar no Fênix.
+        </a>
+           </span>
+}</Step>
+                                 {/* INSERINDO O VÍDEO AQUI */}
+                <VideoTutorial videoId="iI5fXSoSQGo" title="Passo a Passo do Cadastro no Fênix" />
+
+                                
+                        <Step number="10" title="TutoriaL do passo a passo para emissão do ACP no Sistema Fênix" isLast>{
+    <span>
+       No link a seguir será apresentado  um tutorial de como você vai conseguir protocolar seus dados para emitir o ACP no Fênix. -->
+        <a href="http://www.cbm.ba.gov.br/sites/default/files/2024-04/3_-_analise_-_reanalise_de_pt_ptiot_ptotep_0.pdf" target="_blank" className="text-blue-600 underline hover:text-blue-800">
+            Tutorial do Protocolo de Análise de Projeto no Fênix.
+        </a>
+           </span>
+}</Step>                   
+                              <ActionButtons onFenixClick={handleFenixClick} />
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
